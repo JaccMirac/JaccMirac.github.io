@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Session-Builder &middot; Improtheater</title>
+<style>
+  /* ===== UI des Builders (nicht Teil der erzeugten Session) ===== */
+  * { box-sizing: border-box; }
+  :root {
+    --pp: #6a2c8f;   /* Lila  */
+    --rr: #b0392b;   /* Rot   */
+    --bg: #faf7fc;
+    --line: #e6dcef;
+    --ink: #1c2230;
+    --mut: #5a6072;
+  }
+  body {
+    font-family: "Segoe UI", Calibri, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .topbar h1 { font-size: 1.15rem; color: var(--pp); margin: 0; }
+  .topbar .home { color: var(--mut); text-decoration: none; font-size: .9rem; }
+  .topbar .home:hover { color: var(--pp); }
+  .topbar .actions { margin-left: auto; display: flex; gap: 9px; flex-wrap: wrap; }
+  button {
+    font: inherit;
+    cursor: pointer;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    padding: 8px 13px;
+    transition: background .12s, box-shadow .12s, transform .04s;
+  }
+  button:hover { box-shadow: 0 2px 7px rgba(106,44,143,.13); }
+  button:active { transform: translateY(1px); }
+  button.primary { background: var(--pp); color: #fff; border-color: var(--pp); }
+  button.primary.alt { background: var(--rr); border-color: var(--rr); }
+  button.tiny { padding: 3px 8px; font-size: .82rem; }
+  button.ghost { background: transparent; border-style: dashed; color: var(--pp); }
+
+  .layout { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 0; align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+  .panel { padding: 20px 22px 60px; }
+  .panel.form { border-right: 1px solid var(--line); }
+
+  .group { background: #fff; border: 1px solid var(--line); border-radius: 9px; padding: 14px 15px; margin: 0 0 16px; }
+  .group > h3 { margin: 0 0 11px; font-size: .98rem; color: var(--pp); display: flex; align-items: center; gap: 8px; }
+  .group > h3 .num { background: #f4ecf8; color: var(--pp); border-radius: 5px; padding: 1px 7px; font-size: .8rem; }
+
+  label { display: block; font-size: .82rem; color: var(--mut); margin: 9px 0 3px; font-weight: 600; }
+  label:first-of-type { margin-top: 0; }
+  input[type=text], textarea {
+    width: 100%; font: inherit; color: var(--ink);
+    border: 1px solid var(--line); border-radius: 6px;
+    padding: 7px 9px; background: #fff;
+  }
+  input[type=text]:focus, textarea:focus { outline: none; border-color: var(--pp); box-shadow: 0 0 0 2px rgba(106,44,143,.12); }
+  textarea { resize: vertical; min-height: 52px; }
+  .row { display: flex; gap: 10px; }
+  .row > .col { flex: 1; min-width: 0; }
+  .row > .col.narrow { flex: 0 0 130px; }
+  .hint { font-size: .76rem; color: #8a8f9c; margin: 3px 0 0; }
+  .check { display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; color: var(--mut); font-weight: 600; cursor: pointer; }
+  .check input { width: auto; }
+
+  /* Block-Editoren */
+  .block { border: 1px solid var(--line); border-left-width: 4px; border-radius: 8px; padding: 12px 13px; margin: 0 0 11px; background: #fff; }
+  .block.b-phase { border-left-color: var(--pp); background: #faf6fd; }
+  .block.b-game { border-left-color: var(--rr); }
+  .block.b-game.is-hl { background: #fbf3f2; }
+  .block.b-simple { border-left-color: #8a8f9c; }
+  .block.b-note { border-left-color: #d8a72b; background: #fdfaf1; }
+  .block-head { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+  .block-tag { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--mut); }
+  .block-head .sp { margin-left: auto; display: flex; gap: 5px; align-items: center; }
+  .block-head .sp select.ins { font: inherit; font-size: .78rem; color: var(--pp); border: 1px dashed var(--pp); background: transparent; border-radius: 6px; padding: 3px 4px; cursor: pointer; }
+  .bullets .bullet-row { display: flex; gap: 6px; margin-bottom: 5px; }
+  .bullets .bullet-row input { flex: 1; }
+  .addbar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+
+  /* Vorschau */
+  .panel.preview { position: sticky; top: 56px; padding: 16px; height: calc(100vh - 56px); display: flex; flex-direction: column; }
+  @media (max-width: 900px) { .panel.preview { position: static; height: 70vh; border-top: 2px solid var(--line); } }
+  .preview .bar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .preview .bar .lbl { font-size: .82rem; color: var(--mut); font-weight: 600; }
+  .preview iframe { flex: 1; width: 100%; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+    background: #1c2230; color: #fff; padding: 10px 16px; border-radius: 8px;
+    font-size: .9rem; opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 50;
+  }
+  .toast.show { opacity: 1; }
+  details.help { margin: 0 0 16px; background: #fff; border: 1px solid var(--line); border-radius: 9px; padding: 10px 14px; }
+  details.help summary { cursor: pointer; font-weight: 600; color: var(--pp); font-size: .9rem; }
+  details.help ul { margin: 9px 0 2px 18px; padding: 0; font-size: .86rem; color: var(--mut); }
+  details.help li { margin: 4px 0; }
+  details.help code { background: #f4ecf8; color: var(--pp); padding: 1px 5px; border-radius: 4px; font-size: .85em; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Session-Builder</h1>
+  <a class="home" href="index.html">&larr; zur Übersicht</a>
+  <div class="actions">
+    <button id="btnReset" title="Aktuelle Session verwerfen und neu beginnen">Neue Session</button>
+    <button id="btnHtml" class="primary">HTML herunterladen</button>
+    <button id="btnPdf" class="primary alt">PDF herunterladen</button>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- ============ FORMULAR ============ -->
+  <div class="panel form">
+
+    <details class="help">
+      <summary>So funktioniert's</summary>
+      <ul>
+        <li>Felder ausfüllen &ndash; die <strong>Vorschau rechts</strong> aktualisiert sich live und sieht aus wie die fertige Session.</li>
+        <li>Mit <strong>+ Phase / + Spiel / + Block / + Hinweis</strong> baust du den Ablauf. Spiele werden je Phase automatisch <strong>a) b) c)</strong> durchnummeriert.</li>
+        <li>Text hervorheben: <code>**fett**</code> und <code>*kursiv*</code>. Der lila Pfeil zum Lernziel wird automatisch gesetzt.</li>
+        <li>Fertig? <strong>HTML herunterladen</strong> (zum Hosten/Teilen) oder <strong>PDF herunterladen</strong> (öffnet den Druckdialog &rarr; „Als PDF speichern", A4).</li>
+      </ul>
+    </details>
+
+    <div class="group">
+      <h3>Kopf der Session</h3>
+      <label>Titel <span style="font-weight:400;color:#8a8f9c">(optional &ndash; überschreibt die Überschrift)</span></label>
+      <input type="text" id="f-titel" placeholder="frei wählbar, z. B. Warm-up-Abend">
+      <p class="hint">Leer lassen, um automatisch „Improtheater-Session &middot; Überthema: …" zu nutzen.</p>
+      <label>Überthema</label>
+      <input type="text" id="f-ueberthema" placeholder="z. B. Emotionen / Gefühle">
+      <div class="row">
+        <div class="col narrow">
+          <label>Dauer</label>
+          <input type="text" id="f-dauer" placeholder="120 Min.">
+        </div>
+        <div class="col">
+          <label>Aufbau (kurz)</label>
+          <input type="text" id="f-aufbau" placeholder="Erwärmung &rarr; Konzentration &rarr; Spiele + Freeze">
+        </div>
+      </div>
+      <label>Roter Faden / Lernziel</label>
+      <textarea id="f-faden" placeholder="Worum geht es heute? Was sollen alle mitnehmen?"></textarea>
+    </div>
+
+    <div class="group">
+      <h3>Durchgehendes Werkzeug <span style="font-weight:400;color:#8a8f9c;font-size:.8rem">(optional)</span></h3>
+      <label class="check"><input type="checkbox" id="f-werkzeug-on"> Werkzeug-Block anzeigen</label>
+      <div id="werkzeug-fields" hidden>
+        <label>Name</label>
+        <input type="text" id="f-werkzeug-name" placeholder="z. B. Intensitäts-Skala 1–10">
+        <label>Beschreibung</label>
+        <textarea id="f-werkzeug-desc" placeholder="Was ist das Werkzeug, wie wird es genutzt?"></textarea>
+      </div>
+    </div>
+
+    <div class="group">
+      <h3>Ablauf</h3>
+      <div id="blocks"></div>
+      <div class="addbar">
+        <button class="ghost tiny" data-add="phase">+ Phase</button>
+        <button class="ghost tiny" data-add="game">+ Spiel</button>
+        <button class="ghost tiny" data-add="simple">+ Block (ohne Titel)</button>
+        <button class="ghost tiny" data-add="note">+ Hinweis / Pause</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <h3>Fuß &amp; Quellen <span style="font-weight:400;color:#8a8f9c;font-size:.8rem">(optional)</span></h3>
+      <label>Timing-Hinweis</label>
+      <input type="text" id="f-timing" placeholder="z. B. ~114 Min. inkl. 10-Min-Pause">
+      <label>Bei großer Gruppe</label>
+      <input type="text" id="f-gruppe" placeholder="z. B. zwei Kleingruppen parallel">
+      <label>Alternativen aus dem Pool</label>
+      <input type="text" id="f-alternativen" placeholder="z. B. Trizophrenia statt eines Szenenspiels">
+      <label>Quellen</label>
+      <input type="text" id="f-quellen" placeholder="improwiki.com &middot; learnimprov.com …">
+    </div>
+
+  </div>
+
+  <!-- ============ VORSCHAU ============ -->
+  <div class="panel preview">
+    <div class="bar">
+      <span class="lbl">Live-Vorschau</span>
+      <button class="tiny" id="btnPdf2">PDF</button>
+      <button class="tiny" id="btnHtml2">HTML</button>
+    </div>
+    <iframe id="preview" title="Vorschau"></iframe>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   CSS der erzeugten Session – identisch zum Template/zu den
+   bestehenden Sessions. Wird in jede Download-/Druckdatei
+   eingebettet.
+   ============================================================ */
+const SESSION_CSS = `
+  @page { size: A4; margin: 16mm 16mm 16mm 16mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", Calibri, Arial, sans-serif;
+    color: #1c2230;
+    font-size: 10.7pt;
+    line-height: 1.42;
+    margin: 0;
+  }
+  h1 { font-size: 20pt; margin: 0 0 2px 0; color: #6a2c8f; letter-spacing: .2px; }
+  .sub { font-size: 10.5pt; color: #5a6072; margin: 0 0 14px 0; }
+  .theme-box { background: #f4ecf8; border-left: 5px solid #6a2c8f; padding: 9px 13px; border-radius: 4px; margin: 0 0 14px 0; }
+  .theme-box strong { color: #6a2c8f; }
+  h2 { font-size: 12.5pt; color: #6a2c8f; margin: 16px 0 6px 0; padding-bottom: 3px; border-bottom: 1.5px solid #d9c4e6; }
+  .phase-time { font-weight: normal; color: #8a8f9c; font-size: 10pt; }
+  .game { margin: 0 0 8px 0; }
+  .game-title { font-weight: 600; color: #2a2f3d; }
+  .game-title .t { color: #b0392b; font-weight: 600; font-size: 9.6pt; }
+  .arrow { color: #6a2c8f; }
+  ul { margin: 3px 0 6px 18px; padding: 0; }
+  li { margin: 1px 0; }
+  .scale { background:#eef4ec; border:1px solid #cfe0c9; border-radius:4px; padding:6px 10px; margin:4px 0 12px 0; font-size:10.2pt; }
+  .footer-note { font-size:9.6pt; color:#5a6072; margin-top:10px; border-top:1px solid #e2e2ea; padding-top:7px; }
+  .sources { font-size:8.8pt; color:#7a7f8c; margin-top:8px; }
+  .highlight-game { background:#f9eeee; border-left:4px solid #b0392b; padding:7px 11px; border-radius:3px; }
+  .kicker { color:#b0392b; font-weight:600; font-size:9.4pt; letter-spacing:.4px; text-transform:uppercase; }
+  .page-break { break-before: page; page-break-before: always; }
+  h2 { break-after: avoid; page-break-after: avoid; }
+  .game, .highlight-game, .scale, .theme-box, .footer-note, .sources { break-inside: avoid; page-break-inside: avoid; }
+  @media screen {
+    body { font-size: 16px; line-height: 1.55; max-width: 820px; margin: 0 auto; padding: 22px 18px 40px; }
+    h1 { font-size: 1.7rem; line-height: 1.2; }
+    .sub { font-size: 1rem; }
+    h2 { font-size: 1.2rem; margin-top: 22px; }
+    .phase-time { font-size: .9rem; }
+    .game { margin-bottom: 12px; }
+    .game-title .t { font-size: .85rem; }
+    .scale { font-size: 1rem; }
+    .footer-note { font-size: .9rem; }
+    .sources { font-size: .82rem; }
+    .kicker { font-size: .8rem; }
+    ul { margin-left: 20px; }
+    .page-break { break-before: auto; page-break-before: auto; }
+  }
+  @media screen and (max-width: 480px) {
+    body { font-size: 17px; padding: 16px 14px 32px; }
+    h1 { font-size: 1.4rem; }
+    h2 { font-size: 1.12rem; }
+  }`;
+
+/* ============================================================
+   Zustand
+   ============================================================ */
+let uid = 1;
+const nid = () => 'b' + (uid++);
+
+function defaultState() {
+  return {
+    titel: '',
+    ueberthema: '',
+    dauer: '120 Min.',
+    aufbau: 'Erwärmung → Konzentration & Assoziation → Spiele + Freeze',
+    faden: '',
+    werkzeugOn: false,
+    werkzeugName: '',
+    werkzeugDesc: '',
+    timing: '',
+    gruppe: '',
+    alternativen: '',
+    quellen: '',
+    blocks: [
+      { id: nid(), type: 'phase', nummer: '0', titel: 'Ankommen', dauer: '5 Min.', pageBreak: false },
+      { id: nid(), type: 'simple', desc: 'Kreis. Kurzes Blitzlicht zum Reinkommen.', lernziel: 'Setzt das Thema, alle kommen an.' },
+      { id: nid(), type: 'phase', nummer: '1', titel: 'Erwärmung', dauer: 'ca. 18 Min.', pageBreak: false },
+      { id: nid(), type: 'game', name: '', dauer: '8 Min.', desc: '', bullets: [], lernziel: '', highlight: false },
+      { id: nid(), type: 'phase', nummer: '2', titel: 'Konzentration & Assoziation', dauer: 'ca. 26 Min.', pageBreak: false },
+      { id: nid(), type: 'game', name: '', dauer: '10 Min.', desc: '', bullets: [], lernziel: '', highlight: false },
+      { id: nid(), type: 'note', variant: 'pause', text: '**☕ Trinkpause · mind. 10 Min.** Durchatmen, lockern – danach geht es in den Spiel-Teil.' },
+      { id: nid(), type: 'phase', nummer: '3', titel: 'Spiele + Freeze', dauer: 'ca. 45 Min.', pageBreak: true },
+      { id: nid(), type: 'game', name: '', dauer: '10 Min.', desc: '', bullets: [], lernziel: '', highlight: false },
+      { id: nid(), type: 'game', name: 'Höhepunkt-Spiel', dauer: '25 Min.', desc: '', bullets: ['**Runde 1:** …', '**Runde 2:** …'], lernziel: '', highlight: true },
+      { id: nid(), type: 'phase', nummer: '4', titel: 'Abschluss & Reflexion', dauer: '5 Min.', pageBreak: false },
+      { id: nid(), type: 'simple', desc: 'Kreis. Blitzlicht: Was nehmt ihr mit?', lernziel: 'Rahmt die Session, sichert den Lerntransfer.' }
+    ]
+  };
+}
+
+let S = defaultState();
+
+/* ============================================================
+   Auto-Speichern im Browser (localStorage) – kein Server.
+   Entwurf überlebt Neuladen/Schließen des Tabs.
+   ============================================================ */
+const LS_KEY = 'improBuilderDraft_v1';
+function saveDraft() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) { /* z. B. privater Modus – einfach ignorieren */ }
+}
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return false;
+    const obj = JSON.parse(raw);
+    if (!obj || !Array.isArray(obj.blocks)) return false;
+    S = Object.assign(defaultState(), obj);   // fehlende Felder mit Defaults auffüllen
+    // uid-Zähler hinter die höchste vorhandene Block-ID setzen
+    let max = 0;
+    S.blocks.forEach(b => { const n = parseInt(String(b.id).replace(/\D/g, ''), 10); if (n > max) max = n; });
+    uid = max + 1;
+    return true;
+  } catch (e) { return false; }
+}
+
+/* ============================================================
+   Text-Formatierung: HTML escapen + leichtes Markdown
+   (**fett**, *kursiv*). Sonst nichts – sicher & einfach.
+   ============================================================ */
+function fmt(raw) {
+  let s = (raw == null ? '' : String(raw));
+  s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  s = s.replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/(^|[^*])\*([^*]+?)\*/g, '$1<em>$2</em>');
+  return s.trim();
+}
+
+function slug(s) {
+  return (s || 'session').toString().toLowerCase()
+    .replace(/[äàá]/g, 'a').replace(/[öòó]/g, 'o').replace(/[üùú]/g, 'u').replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'session';
+}
+
+/* ============================================================
+   Session-HTML erzeugen
+   ============================================================ */
+function buildBody(s) {
+  let h = '';
+  const head = s.titel.trim()
+    ? fmt(s.titel)
+    : (s.ueberthema.trim()
+        ? `Improtheater-Session &middot; Überthema: ${fmt(s.ueberthema)}`
+        : 'Improtheater-Session');
+  h += `  <h1>${head}</h1>\n`;
+  const subParts = [];
+  if (s.dauer) subParts.push('Dauer: ' + fmt(s.dauer));
+  if (s.aufbau) subParts.push('Aufbau: ' + fmt(s.aufbau));
+  if (subParts.length) h += `  <p class="sub">${subParts.join(' &nbsp;|&nbsp; ')}</p>\n`;
+
+  if (s.faden.trim())
+    h += `  <div class="theme-box"><strong>Roter Faden:</strong> ${fmt(s.faden)}</div>\n`;
+
+  if (s.werkzeugOn && (s.werkzeugName.trim() || s.werkzeugDesc.trim()))
+    h += `  <div class="scale"><strong>Durchgehendes Werkzeug &middot; ${fmt(s.werkzeugName)}:</strong> ${fmt(s.werkzeugDesc)}</div>\n`;
+
+  let letter = 0;
+  for (const b of s.blocks) {
+    if (b.type === 'phase') {
+      letter = 0;
+      const pb = b.pageBreak ? ' class="page-break"' : '';
+      const time = b.dauer.trim() ? ` <span class="phase-time">(${fmt(b.dauer)})</span>` : '';
+      const num = b.nummer.trim() ? fmt(b.nummer) + ' &middot; ' : '';
+      h += `  <h2${pb}>${num}${fmt(b.titel)}${time}</h2>\n`;
+
+    } else if (b.type === 'game') {
+      const tl = String.fromCharCode(97 + letter); letter++;
+      const dur = b.dauer.trim() ? ` &middot; <span class="t">${fmt(b.dauer)}</span>` : '';
+      const cls = b.highlight ? 'game highlight-game' : 'game';
+      h += `  <div class="${cls}">\n`;
+      if (b.highlight) h += `    <div class="kicker">Höhepunkt</div>\n`;
+      h += `    <div class="game-title">${tl}) ${fmt(b.name) || '…'}${dur}</div>\n`;
+      if (b.desc.trim()) h += `    ${fmt(b.desc)}\n`;
+      const bl = (b.bullets || []).filter(x => x.trim());
+      if (bl.length) {
+        h += `    <ul>\n`;
+        for (const li of bl) h += `      <li>${fmt(li)}</li>\n`;
+        h += `    </ul>\n`;
+      }
+      if (b.lernziel.trim()) h += `    <span class="arrow">&rarr;</span> ${fmt(b.lernziel)}\n`;
+      h += `  </div>\n`;
+
+    } else if (b.type === 'simple') {
+      h += `  <div class="game">\n    ${fmt(b.desc)}`;
+      if (b.lernziel.trim()) h += ` <span class="arrow">&rarr;</span> ${fmt(b.lernziel)}`;
+      h += `\n  </div>\n`;
+
+    } else if (b.type === 'note') {
+      const style = b.variant === 'pause' ? ' style="background:#eaf0f6; border-color:#c3d3e3;"' : '';
+      h += `  <div class="scale"${style}>${fmt(b.text)}</div>\n`;
+    }
+  }
+
+  const fn = [];
+  if (s.timing.trim()) fn.push(`<strong>Timing:</strong> ${fmt(s.timing)}`);
+  if (s.gruppe.trim()) fn.push(`<strong>Bei großer Gruppe:</strong> ${fmt(s.gruppe)}`);
+  if (s.alternativen.trim()) fn.push(`<strong>Alternativen aus dem Pool:</strong> ${fmt(s.alternativen)}`);
+  if (fn.length) h += `  <p class="footer-note">\n    ${fn.join('\n    ')}\n  </p>\n`;
+  if (s.quellen.trim()) h += `  <p class="sources">Quellen: ${fmt(s.quellen)}</p>\n`;
+
+  return h;
+}
+
+function buildFullDoc(s) {
+  const title = s.titel.trim()
+    ? s.titel
+    : (s.ueberthema.trim()
+        ? 'Improtheater-Session – Überthema ' + s.ueberthema
+        : 'Improtheater-Session');
+  return `<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>${fmt(title)}</title>
+<style>${SESSION_CSS}
+</style>
+</head>
+<body>
+
+${buildBody(s)}
+</body>
+</html>`;
+}
+
+/* ============================================================
+   Vorschau (Iframe) – Body live ersetzen, Scroll bleibt
+   ============================================================ */
+const ifr = document.getElementById('preview');
+function initPreview() {
+  const d = ifr.contentDocument;
+  d.open(); d.write(buildFullDoc(S)); d.close();
+}
+function updatePreview() {
+  const d = ifr.contentDocument;
+  if (!d.body) { initPreview(); }
+  else { d.body.innerHTML = buildBody(S); }
+  saveDraft();
+}
+
+/* ============================================================
+   Block-Editoren rendern
+   ============================================================ */
+const blocksEl = document.getElementById('blocks');
+
+function moveBlock(id, dir) {
+  const i = S.blocks.findIndex(b => b.id === id);
+  const j = i + dir;
+  if (i < 0 || j < 0 || j >= S.blocks.length) return;
+  const [b] = S.blocks.splice(i, 1);
+  S.blocks.splice(j, 0, b);
+  renderBlocks(); updatePreview();
+}
+function removeBlock(id) {
+  S.blocks = S.blocks.filter(b => b.id !== id);
+  renderBlocks(); updatePreview();
+}
+function makeBlock(type) {
+  const base = { id: nid(), type };
+  if (type === 'phase') Object.assign(base, { nummer: String(S.blocks.filter(b => b.type === 'phase').length), titel: 'Neue Phase', dauer: '', pageBreak: false });
+  else if (type === 'game') Object.assign(base, { name: '', dauer: '', desc: '', bullets: [], lernziel: '', highlight: false });
+  else if (type === 'simple') Object.assign(base, { desc: '', lernziel: '' });
+  else if (type === 'note') Object.assign(base, { variant: 'hinweis', text: '' });
+  return base;
+}
+function addBlock(type) {
+  S.blocks.push(makeBlock(type));
+  renderBlocks(); updatePreview();
+  blocksEl.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function insertBlockAfter(id, type) {
+  const i = S.blocks.findIndex(b => b.id === id);
+  S.blocks.splice(i + 1, 0, makeBlock(type));
+  renderBlocks(); updatePreview();
+}
+
+// kleine DOM-Helfer
+function el(tag, attrs, kids) {
+  const e = document.createElement(tag);
+  if (attrs) for (const k in attrs) {
+    if (k === 'class') e.className = attrs[k];
+    else if (k === 'html') e.innerHTML = attrs[k];
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), attrs[k]);
+    else if (attrs[k] === true) e.setAttribute(k, '');
+    else if (attrs[k] !== false && attrs[k] != null) e.setAttribute(k, attrs[k]);
+  }
+  (kids || []).forEach(c => e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
+  return e;
+}
+function field(labelTxt, input) {
+  return el('div', {}, [el('label', {}, [labelTxt]), input]);
+}
+function textInput(val, ph, oninput) {
+  const i = el('input', { type: 'text', placeholder: ph || '' });
+  i.value = val || '';
+  i.addEventListener('input', () => { oninput(i.value); updatePreview(); });
+  return i;
+}
+function textArea(val, ph, oninput) {
+  const t = el('textarea', { placeholder: ph || '' });
+  t.value = val || '';
+  t.addEventListener('input', () => { oninput(t.value); updatePreview(); });
+  return t;
+}
+
+function insertControl(afterId) {
+  const sel = el('select', { class: 'ins', title: 'Block darunter einfügen' });
+  sel.innerHTML = '<option value="">+ einfügen ▾</option>'
+    + '<option value="phase">＋ Phase darunter</option>'
+    + '<option value="game">＋ Spiel darunter</option>'
+    + '<option value="simple">＋ Block darunter</option>'
+    + '<option value="note">＋ Hinweis darunter</option>';
+  sel.addEventListener('change', () => { if (sel.value) { const t = sel.value; sel.value = ''; insertBlockAfter(afterId, t); } });
+  return sel;
+}
+function blockHead(b, tag, extra) {
+  const sp = el('div', { class: 'sp' }, [
+    insertControl(b.id),
+    el('button', { class: 'tiny', title: 'nach oben', onclick: () => moveBlock(b.id, -1) }, ['↑']),
+    el('button', { class: 'tiny', title: 'nach unten', onclick: () => moveBlock(b.id, 1) }, ['↓']),
+    el('button', { class: 'tiny', title: 'löschen', onclick: () => removeBlock(b.id) }, ['✕'])
+  ]);
+  const head = el('div', { class: 'block-head' }, [el('span', { class: 'block-tag' }, [tag])]);
+  if (extra) head.appendChild(extra);
+  head.appendChild(sp);
+  return head;
+}
+
+function renderBlocks() {
+  blocksEl.innerHTML = '';
+  S.blocks.forEach(b => {
+    let wrap;
+    if (b.type === 'phase') {
+      wrap = el('div', { class: 'block b-phase' });
+      wrap.appendChild(blockHead(b, 'Phase'));
+      const num = textInput(b.nummer, 'Nr.', v => b.nummer = v);
+      const tit = textInput(b.titel, 'Titel der Phase', v => b.titel = v);
+      const dur = textInput(b.dauer, 'z. B. 18 Min.', v => b.dauer = v);
+      const r = el('div', { class: 'row' }, [
+        el('div', { class: 'col narrow' }, [el('label', {}, ['Nummer']), num]),
+        el('div', { class: 'col' }, [el('label', {}, ['Titel']), tit]),
+        el('div', { class: 'col narrow' }, [el('label', {}, ['Dauer']), dur])
+      ]);
+      wrap.appendChild(r);
+      const cb = el('input', { type: 'checkbox' }); cb.checked = !!b.pageBreak;
+      cb.addEventListener('change', () => { b.pageBreak = cb.checked; updatePreview(); });
+      const lab = el('label', { class: 'check' }, [cb, ' Im PDF auf neuer Seite beginnen']);
+      lab.style.marginTop = '9px';
+      wrap.appendChild(lab);
+
+    } else if (b.type === 'game') {
+      wrap = el('div', { class: 'block b-game' + (b.highlight ? ' is-hl' : '') });
+      const hlCb = el('input', { type: 'checkbox' }); hlCb.checked = !!b.highlight;
+      const hlLab = el('label', { class: 'check' }, [hlCb, ' Höhepunkt']);
+      hlCb.addEventListener('change', () => { b.highlight = hlCb.checked; renderBlocks(); updatePreview(); });
+      wrap.appendChild(blockHead(b, 'Spiel', hlLab));
+      wrap.appendChild(el('div', { class: 'row' }, [
+        el('div', { class: 'col' }, [el('label', {}, ['Name des Spiels']), textInput(b.name, 'z. B. Emotionaler Raumlauf', v => b.name = v)]),
+        el('div', { class: 'col narrow' }, [el('label', {}, ['Dauer']), textInput(b.dauer, '8 Min.', v => b.dauer = v)])
+      ]));
+      wrap.appendChild(field('Beschreibung', textArea(b.desc, 'Wie läuft das Spiel? **fett** / *kursiv* erlaubt.', v => b.desc = v)));
+
+      // Aufzählungspunkte
+      wrap.appendChild(el('label', {}, ['Aufzählungspunkte (optional)']));
+      const bWrap = el('div', { class: 'bullets' });
+      (b.bullets || []).forEach((txt, i) => {
+        const inp = el('input', { type: 'text', placeholder: 'z. B. **Runde 1:** …' }); inp.value = txt;
+        inp.addEventListener('input', () => { b.bullets[i] = inp.value; updatePreview(); });
+        const del = el('button', { class: 'tiny', title: 'Punkt entfernen', onclick: () => { b.bullets.splice(i, 1); renderBlocks(); updatePreview(); } }, ['✕']);
+        bWrap.appendChild(el('div', { class: 'bullet-row' }, [inp, del]));
+      });
+      const addLi = el('button', { class: 'ghost tiny', onclick: () => { b.bullets = b.bullets || []; b.bullets.push(''); renderBlocks(); updatePreview(); } }, ['+ Punkt']);
+      bWrap.appendChild(addLi);
+      wrap.appendChild(bWrap);
+
+      wrap.appendChild(field('Lernziel (nach dem Pfeil →)', textInput(b.lernziel, 'Was übt dieses Spiel?', v => b.lernziel = v)));
+
+    } else if (b.type === 'simple') {
+      wrap = el('div', { class: 'block b-simple' });
+      wrap.appendChild(blockHead(b, 'Block ohne Titel'));
+      wrap.appendChild(field('Beschreibung', textArea(b.desc, 'Freitext, z. B. Ankommen / Abschluss.', v => b.desc = v)));
+      wrap.appendChild(field('Lernziel (nach dem Pfeil →, optional)', textInput(b.lernziel, '', v => b.lernziel = v)));
+
+    } else if (b.type === 'note') {
+      wrap = el('div', { class: 'block b-note' });
+      const sel = el('select');
+      [['hinweis', 'Hinweis (grün)'], ['pause', 'Pause (blau)']].forEach(([v, t]) => {
+        const o = el('option', { value: v }, [t]); if (b.variant === v) o.selected = true; sel.appendChild(o);
+      });
+      sel.style.cssText = 'font:inherit;border:1px solid var(--line);border-radius:6px;padding:4px 7px;';
+      sel.addEventListener('change', () => { b.variant = sel.value; updatePreview(); });
+      wrap.appendChild(blockHead(b, 'Hinweis / Pause', sel));
+      wrap.appendChild(field('Text', textArea(b.text, 'z. B. **☕ Trinkpause · 10 Min.** Durchatmen …', v => b.text = v)));
+    }
+    blocksEl.appendChild(wrap);
+  });
+}
+
+/* ============================================================
+   Kopf-/Fuß-Felder anbinden
+   ============================================================ */
+function bind(id, key) {
+  const e = document.getElementById(id);
+  const ev = e.type === 'checkbox' ? 'change' : 'input';
+  e.addEventListener(ev, () => {
+    S[key] = e.type === 'checkbox' ? e.checked : e.value;
+    if (id === 'f-werkzeug-on') document.getElementById('werkzeug-fields').hidden = !e.checked;
+    updatePreview();
+  });
+}
+function syncFields() {
+  document.getElementById('f-titel').value = S.titel;
+  document.getElementById('f-ueberthema').value = S.ueberthema;
+  document.getElementById('f-dauer').value = S.dauer;
+  document.getElementById('f-aufbau').value = S.aufbau;
+  document.getElementById('f-faden').value = S.faden;
+  document.getElementById('f-werkzeug-on').checked = S.werkzeugOn;
+  document.getElementById('f-werkzeug-name').value = S.werkzeugName;
+  document.getElementById('f-werkzeug-desc').value = S.werkzeugDesc;
+  document.getElementById('werkzeug-fields').hidden = !S.werkzeugOn;
+  document.getElementById('f-timing').value = S.timing;
+  document.getElementById('f-gruppe').value = S.gruppe;
+  document.getElementById('f-alternativen').value = S.alternativen;
+  document.getElementById('f-quellen').value = S.quellen;
+}
+[['f-titel', 'titel'], ['f-ueberthema', 'ueberthema'], ['f-dauer', 'dauer'], ['f-aufbau', 'aufbau'], ['f-faden', 'faden'],
+ ['f-werkzeug-on', 'werkzeugOn'], ['f-werkzeug-name', 'werkzeugName'], ['f-werkzeug-desc', 'werkzeugDesc'],
+ ['f-timing', 'timing'], ['f-gruppe', 'gruppe'], ['f-alternativen', 'alternativen'], ['f-quellen', 'quellen']
+].forEach(([id, key]) => bind(id, key));
+
+document.querySelectorAll('[data-add]').forEach(btn =>
+  btn.addEventListener('click', () => addBlock(btn.dataset.add)));
+
+/* ============================================================
+   Download & Druck
+   ============================================================ */
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+function downloadHtml() {
+  const html = buildFullDoc(S);
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = el('a', { href: url, download: 'improtheater-session-' + slug(S.titel || S.ueberthema) + '.html' });
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  toast('HTML-Datei gespeichert');
+}
+function downloadPdf() {
+  // Eigenes, isoliertes Iframe nur für den Druck → es wird ausschließlich
+  // die Session gedruckt, nicht die Builder-Oberfläche.
+  const f = el('iframe', {});
+  f.style.cssText = 'position:fixed;left:-10000px;top:0;width:800px;height:1130px;border:0;';
+  document.body.appendChild(f);
+  f.onload = () => {
+    try { f.contentWindow.focus(); f.contentWindow.print(); }
+    finally { setTimeout(() => f.remove(), 1000); }
+  };
+  f.srcdoc = buildFullDoc(S);
+  toast('Druckdialog → „Als PDF speichern"');
+}
+document.getElementById('btnHtml').addEventListener('click', downloadHtml);
+document.getElementById('btnHtml2').addEventListener('click', downloadHtml);
+document.getElementById('btnPdf').addEventListener('click', downloadPdf);
+document.getElementById('btnPdf2').addEventListener('click', downloadPdf);
+document.getElementById('btnReset').addEventListener('click', () => {
+  // Doppelte Sicherheitsabfrage, bevor die aktuelle Session verworfen wird.
+  if (!confirm('Neue Session beginnen? Die aktuelle Session wird dabei verworfen.')) return;
+  if (!confirm('Wirklich verwerfen? Das kann nicht rückgängig gemacht werden.')) return;
+  S = defaultState(); syncFields(); renderBlocks(); initPreview(); saveDraft();
+  toast('Neue Session begonnen');
+});
+
+/* ============================================================
+   Start – ggf. gespeicherten Entwurf wiederherstellen
+   ============================================================ */
+loadDraft();        // füllt S aus localStorage, falls vorhanden
+syncFields();
+renderBlocks();
+initPreview();
+saveDraft();        // initialen Stand sichern
+</script>
+</body>
+</html>
