@@ -116,6 +116,52 @@
   details.help ul { margin: 9px 0 2px 18px; padding: 0; font-size: .86rem; color: var(--mut); }
   details.help li { margin: 4px 0; }
   details.help code { background: #f4ecf8; color: var(--pp); padding: 1px 5px; border-radius: 4px; font-size: .85em; }
+
+  /* ============ Mobile: Tab-Umschaltung Bearbeiten / Vorschau ============ */
+  .mtabs { display: none; }
+  @media (max-width: 900px) {
+    .topbar { padding: 10px 13px; gap: 10px; }
+    .topbar h1 { font-size: 1.05rem; }
+    .topbar .actions { margin-left: auto; }
+    /* Lange Download-Buttons auf Mobil ausblenden – Download läuft über den Vorschau-Tab */
+    #btnHtml, #btnPdf { display: none; }
+
+    .panel { padding: 16px 14px 92px; }
+    .panel.form { border-right: none; }
+
+    /* feste Tab-Leiste unten */
+    .mtabs {
+      display: flex; gap: 8px; padding: 8px 10px;
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+      background: #fff; border-top: 1px solid var(--line);
+      box-shadow: 0 -2px 12px rgba(28,34,48,.08);
+    }
+    .mtabs button { flex: 1; padding: 12px; font-weight: 600; font-size: .98rem; }
+    .mtabs button.on { background: var(--pp); color: #fff; border-color: var(--pp); }
+
+    /* Standard: Formular sichtbar, Vorschau aus */
+    .panel.preview {
+      display: none; position: static; top: auto; height: auto;
+      border-top: none; padding: 12px 12px 92px;
+    }
+    body.show-preview .panel.form { display: none; }
+    body.show-preview .panel.preview { display: flex; }
+    .panel.preview iframe { min-height: calc(100vh - 210px); }
+    .preview .bar { flex-wrap: wrap; }
+    .preview .bar .lbl { flex: 1 1 100%; margin-bottom: 2px; }
+    #btnPdf2, #btnHtml2 { flex: 1; padding: 11px; font-size: .95rem; }
+
+    /* größere Touch-Ziele + Umbruch in Block-Köpfen */
+    button.tiny { padding: 7px 11px; font-size: .9rem; }
+    .block-head { flex-wrap: wrap; }
+    .block-head .sp { flex-wrap: wrap; }
+    .block-head .sp select.ins { padding: 7px 6px; font-size: .85rem; }
+  }
+  @media (max-width: 560px) {
+    .row { flex-direction: column; gap: 0; }
+    .row > .col.narrow { flex: 1 1 auto; }
+    .topbar h1 { font-size: 1rem; }
+  }
 </style>
 </head>
 <body>
@@ -205,11 +251,17 @@
   <div class="panel preview">
     <div class="bar">
       <span class="lbl">Live-Vorschau</span>
-      <button class="tiny" id="btnPdf2">PDF</button>
-      <button class="tiny" id="btnHtml2">HTML</button>
+      <button class="tiny" id="btnPdf2">⬇ PDF</button>
+      <button class="tiny" id="btnHtml2">⬇ HTML</button>
     </div>
     <iframe id="preview" title="Vorschau"></iframe>
   </div>
+</div>
+
+<!-- Tab-Umschaltung nur auf Mobil sichtbar -->
+<div class="mtabs" id="mtabs">
+  <button id="tabEdit" class="on">✏️ Bearbeiten</button>
+  <button id="tabPrev">👁 Vorschau</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -693,6 +745,23 @@ document.getElementById('btnReset').addEventListener('click', () => {
   if (!confirm('Wirklich verwerfen? Das kann nicht rückgängig gemacht werden.')) return;
   S = defaultState(); syncFields(); renderBlocks(); initPreview(); saveDraft();
   toast('Neue Session begonnen');
+});
+
+/* ============================================================
+   Mobile: Umschaltung Bearbeiten / Vorschau
+   ============================================================ */
+const tabEdit = document.getElementById('tabEdit');
+const tabPrev = document.getElementById('tabPrev');
+tabEdit.addEventListener('click', () => {
+  document.body.classList.remove('show-preview');
+  tabEdit.classList.add('on'); tabPrev.classList.remove('on');
+  window.scrollTo(0, 0);
+});
+tabPrev.addEventListener('click', () => {
+  document.body.classList.add('show-preview');
+  tabPrev.classList.add('on'); tabEdit.classList.remove('on');
+  updatePreview();           // sicherstellen, dass die Vorschau aktuell ist
+  window.scrollTo(0, 0);
 });
 
 /* ============================================================
