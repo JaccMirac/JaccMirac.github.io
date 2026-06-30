@@ -185,6 +185,7 @@
       <ul>
         <li>Felder ausfüllen &ndash; die <strong>Vorschau rechts</strong> aktualisiert sich live und sieht aus wie die fertige Session.</li>
         <li>Mit <strong>+ Phase / + Spiel / + Block / + Hinweis</strong> baust du den Ablauf. Spiele werden je Phase automatisch <strong>a) b) c)</strong> durchnummeriert.</li>
+        <li>Pro Block lässt sich eine <strong>verantwortliche Person</strong> eintragen (optional) &ndash; sie erscheint als 👤 in der Session.</li>
         <li>Text hervorheben: <code>**fett**</code> und <code>*kursiv*</code>. Der lila Pfeil zum Lernziel wird automatisch gesetzt.</li>
         <li>Fertig? <strong>HTML herunterladen</strong> (zum Hosten/Teilen) oder <strong>PDF herunterladen</strong> (öffnet den Druckdialog &rarr; „Als PDF speichern", A4).</li>
       </ul>
@@ -301,6 +302,7 @@ const SESSION_CSS = `
   .sources { font-size:8.8pt; color:#7a7f8c; margin-top:8px; }
   .highlight-game { background:#f9eeee; border-left:4px solid #b0392b; padding:7px 11px; border-radius:3px; }
   .kicker { color:#b0392b; font-weight:600; font-size:9.4pt; letter-spacing:.4px; text-transform:uppercase; }
+  .lead { color:#6a2c8f; font-weight:600; font-size:9.4pt; white-space:nowrap; }
   .page-break { break-before: page; page-break-before: always; }
   h2 { break-after: avoid; page-break-after: avoid; }
   .game, .highlight-game, .scale, .theme-box, .footer-note, .sources { break-inside: avoid; page-break-inside: avoid; }
@@ -316,6 +318,7 @@ const SESSION_CSS = `
     .footer-note { font-size: .9rem; }
     .sources { font-size: .82rem; }
     .kicker { font-size: .8rem; }
+    .lead { font-size: .85rem; }
     ul { margin-left: 20px; }
     .page-break { break-before: auto; page-break-before: auto; }
   }
@@ -399,6 +402,11 @@ function fmt(raw) {
   return s.trim();
 }
 
+function leadHtml(b, prefix) {
+  const v = (b.verantwortlich || '').trim();
+  return v ? `<span class="lead">${prefix || ''}👤 ${fmt(v)}</span>` : '';
+}
+
 function slug(s) {
   return (s || 'session').toString().toLowerCase()
     .replace(/[äàá]/g, 'a').replace(/[öòó]/g, 'o').replace(/[üùú]/g, 'u').replace(/ß/g, 'ss')
@@ -434,7 +442,9 @@ function buildBody(s) {
       const pb = b.pageBreak ? ' class="page-break"' : '';
       const time = b.dauer.trim() ? ` <span class="phase-time">(${fmt(b.dauer)})</span>` : '';
       const num = b.nummer.trim() ? fmt(b.nummer) + ' &middot; ' : '';
-      h += `  <h2${pb}>${num}${fmt(b.titel)}${time}</h2>\n`;
+      const pLead = leadHtml(b);
+      const pLeadInline = pLead ? ` <span class="phase-time">&middot;</span> ${pLead}` : '';
+      h += `  <h2${pb}>${num}${fmt(b.titel)}${time}${pLeadInline}</h2>\n`;
 
     } else if (b.type === 'game') {
       const tl = String.fromCharCode(97 + letter); letter++;
@@ -442,7 +452,9 @@ function buildBody(s) {
       const cls = b.highlight ? 'game highlight-game' : 'game';
       h += `  <div class="${cls}">\n`;
       if (b.highlight) h += `    <div class="kicker">Höhepunkt</div>\n`;
-      h += `    <div class="game-title">${tl}) ${fmt(b.name) || '…'}${dur}</div>\n`;
+      const gLead = leadHtml(b);
+      const gLeadInline = gLead ? ` &middot; ${gLead}` : '';
+      h += `    <div class="game-title">${tl}) ${fmt(b.name) || '…'}${dur}${gLeadInline}</div>\n`;
       if (b.desc.trim()) h += `    ${fmt(b.desc)}\n`;
       const bl = (b.bullets || []).filter(x => x.trim());
       if (bl.length) {
@@ -456,6 +468,8 @@ function buildBody(s) {
     } else if (b.type === 'simple') {
       h += `  <div class="game">\n    ${fmt(b.desc)}`;
       if (b.lernziel.trim()) h += ` <span class="arrow">&rarr;</span> ${fmt(b.lernziel)}`;
+      const sLead = leadHtml(b);
+      if (sLead) h += ` &middot; ${sLead}`;
       h += `\n  </div>\n`;
 
     } else if (b.type === 'note') {
@@ -531,9 +545,9 @@ function removeBlock(id) {
 }
 function makeBlock(type) {
   const base = { id: nid(), type };
-  if (type === 'phase') Object.assign(base, { nummer: String(S.blocks.filter(b => b.type === 'phase').length), titel: 'Neue Phase', dauer: '', pageBreak: false });
-  else if (type === 'game') Object.assign(base, { name: '', dauer: '', desc: '', bullets: [], lernziel: '', highlight: false });
-  else if (type === 'simple') Object.assign(base, { desc: '', lernziel: '' });
+  if (type === 'phase') Object.assign(base, { nummer: String(S.blocks.filter(b => b.type === 'phase').length), titel: 'Neue Phase', dauer: '', verantwortlich: '', pageBreak: false });
+  else if (type === 'game') Object.assign(base, { name: '', dauer: '', verantwortlich: '', desc: '', bullets: [], lernziel: '', highlight: false });
+  else if (type === 'simple') Object.assign(base, { desc: '', verantwortlich: '', lernziel: '' });
   else if (type === 'note') Object.assign(base, { variant: 'hinweis', text: '' });
   return base;
 }
@@ -616,6 +630,7 @@ function renderBlocks() {
         el('div', { class: 'col narrow' }, [el('label', {}, ['Dauer']), dur])
       ]);
       wrap.appendChild(r);
+      wrap.appendChild(field('Verantwortlich (optional)', textInput(b.verantwortlich, 'z. B. Anna', v => b.verantwortlich = v)));
       const cb = el('input', { type: 'checkbox' }); cb.checked = !!b.pageBreak;
       cb.addEventListener('change', () => { b.pageBreak = cb.checked; updatePreview(); });
       const lab = el('label', { class: 'check' }, [cb, ' Im PDF auf neuer Seite beginnen']);
@@ -630,7 +645,8 @@ function renderBlocks() {
       wrap.appendChild(blockHead(b, 'Spiel', hlLab));
       wrap.appendChild(el('div', { class: 'row' }, [
         el('div', { class: 'col' }, [el('label', {}, ['Name des Spiels']), textInput(b.name, 'z. B. Emotionaler Raumlauf', v => b.name = v)]),
-        el('div', { class: 'col narrow' }, [el('label', {}, ['Dauer']), textInput(b.dauer, '8 Min.', v => b.dauer = v)])
+        el('div', { class: 'col narrow' }, [el('label', {}, ['Dauer']), textInput(b.dauer, '8 Min.', v => b.dauer = v)]),
+        el('div', { class: 'col narrow' }, [el('label', {}, ['Verantwortlich']), textInput(b.verantwortlich, 'Anna', v => b.verantwortlich = v)])
       ]));
       wrap.appendChild(field('Beschreibung', textArea(b.desc, 'Wie läuft das Spiel? **fett** / *kursiv* erlaubt.', v => b.desc = v)));
 
@@ -653,6 +669,7 @@ function renderBlocks() {
       wrap = el('div', { class: 'block b-simple' });
       wrap.appendChild(blockHead(b, 'Block ohne Titel'));
       wrap.appendChild(field('Beschreibung', textArea(b.desc, 'Freitext, z. B. Ankommen / Abschluss.', v => b.desc = v)));
+      wrap.appendChild(field('Verantwortlich (optional)', textInput(b.verantwortlich, 'z. B. Anna', v => b.verantwortlich = v)));
       wrap.appendChild(field('Lernziel (nach dem Pfeil →, optional)', textInput(b.lernziel, '', v => b.lernziel = v)));
 
     } else if (b.type === 'note') {
