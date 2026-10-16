@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Isidore Isidora – Cheatsheet</title>
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --ink: #1c2230; --bg: #faf7fc; --muted: #5a6072; --line: #e6dcef;
+    --accent: #6a2c8f; --accent-soft: #f4ecf8; --accent-line: #d9c4e6;
+    --red: #b0392b; --red-soft: #fbeeec; --gold: #8a6a1a; --gold-soft: #fbf4df;
+  }
+  body {
+    font-family: "Segoe UI", Calibri, Arial, sans-serif;
+    color: var(--ink); background: var(--bg);
+    font-size: 16px; line-height: 1.5; margin: 0; padding: 18px 14px 56px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  header { margin-bottom: 14px; }
+  h1 { font-size: 1.7rem; margin: 0; color: var(--accent); line-height: 1.15; }
+  .sub { color: var(--muted); margin: 4px 0 0; font-size: .95rem; }
+  .back { font-size: .85rem; color: var(--muted); text-decoration: none; display: inline-block; margin-bottom: 8px; }
+  .back:hover { color: var(--accent); }
+  h2 {
+    font-size: 1.05rem; color: var(--accent); margin: 24px 0 10px;
+    padding-bottom: 4px; border-bottom: 1.5px solid var(--accent-line);
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  h2 .tag { font-size: .75rem; font-weight: 500; color: var(--muted); }
+
+  nav.jump { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 4px; }
+  nav.jump a {
+    font-size: .8rem; text-decoration: none; color: var(--accent);
+    background: #fff; border: 1px solid var(--accent-line); border-radius: 999px; padding: 4px 10px;
+  }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0; }
+  .stat { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 8px 4px; text-align: center; }
+  .stat .v { font-size: 1.45rem; font-weight: 700; color: var(--accent); line-height: 1.1; }
+  .stat .l { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+  .stat .n { font-size: .72rem; color: var(--muted); }
+
+  .abil { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin: 10px 0; }
+  .abil div { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 6px 2px; text-align: center; }
+  .abil .l { font-size: .72rem; color: var(--muted); font-weight: 600; }
+  .abil .m { font-size: 1.25rem; font-weight: 700; color: var(--accent); line-height: 1.1; }
+  .abil .s { font-size: .72rem; color: var(--muted); }
+  .abil .save { font-size: .72rem; color: var(--red); font-weight: 600; }
+
+  table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; font-size: .93rem; }
+  th, td { padding: 7px 9px; text-align: left; border-bottom: 1px solid #f0eaf4; vertical-align: top; }
+  th { background: var(--accent-soft); color: var(--accent); font-size: .8rem; text-transform: uppercase; letter-spacing: .3px; }
+  tr:last-child td { border-bottom: 0; }
+  td.num { font-weight: 700; color: var(--accent); white-space: nowrap; }
+  .e { color: var(--gold); font-weight: 700; font-size: .75rem; }
+  .dim { color: var(--muted); font-size: .8rem; }
+
+  .box { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 6px; padding: 11px 14px; margin: 0 0 10px; }
+  .box.red { border-left-color: var(--red); }
+  .box.gold { border-left-color: var(--gold); background: var(--gold-soft); }
+  .box.soft { background: var(--accent-soft); }
+  .box .t { font-weight: 700; color: #2a2f3d; }
+  .box .t .en { font-weight: 500; color: var(--muted); font-size: .85rem; }
+  .when { float: right; font-size: .72rem; font-weight: 600; color: #fff; background: var(--red); border-radius: 4px; padding: 1px 6px; margin-left: 6px; }
+  .when.ba { background: var(--accent); }
+  .when.mv { background: #3b6ea5; }
+  .box p { margin: 4px 0 0; font-size: .93rem; }
+  .box ul { margin: 4px 0 0; padding-left: 18px; font-size: .93rem; }
+  .box li { margin: 2px 0; }
+  .new { display: inline-block; font-size: .7rem; font-weight: 700; color: #fff; background: var(--gold); border-radius: 4px; padding: 1px 6px; vertical-align: middle; }
+
+  .turn { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 4px 0; margin: 10px 0; }
+  .turn .row { display: grid; grid-template-columns: 92px 1fr; gap: 8px; padding: 8px 12px; border-bottom: 1px solid #f0eaf4; font-size: .93rem; }
+  .turn .row:last-child { border-bottom: 0; }
+  .turn .k { font-weight: 700; color: var(--accent); font-size: .85rem; text-transform: uppercase; letter-spacing: .3px; padding-top: 2px; }
+
+  details { background: #fff; border: 1px solid var(--line); border-radius: 6px; margin: 0 0 8px; padding: 0 12px; }
+  summary { cursor: pointer; font-weight: 600; padding: 10px 0; color: #2a2f3d; list-style: none; }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "▸ "; color: var(--accent); }
+  details[open] summary::before { content: "▾ "; }
+  details > *:not(summary) { margin-bottom: 10px; }
+  details ul { margin: 0; padding-left: 18px; font-size: .93rem; }
+  details li { margin: 3px 0; }
+
+  .tracker { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin: 10px 0; }
+  .tracker .hp { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 6px 0 8px; }
+  .tracker .hp .cur { font-size: 2.2rem; font-weight: 700; color: var(--accent); min-width: 72px; text-align: center; }
+  .tracker .hp .max { font-size: 1rem; color: var(--muted); }
+  .tracker button {
+    font: inherit; font-weight: 700; font-size: 1.1rem; min-width: 46px; height: 44px;
+    border-radius: 8px; border: 1px solid var(--accent-line); background: var(--accent-soft); color: var(--accent);
+  }
+  .tracker button:active { background: var(--accent-line); }
+  .tracker .btns { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+  .tracker .sm { font-size: .8rem; color: var(--muted); text-align: center; margin-top: 8px; }
+  .tracker .line { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f0eaf4; font-size: .93rem; flex-wrap: wrap; }
+  .tracker .hd { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tracker input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--accent); vertical-align: middle; }
+  .tracker .reset { font-size: .8rem; min-width: 0; height: 32px; padding: 0 10px; }
+  .tracker input[type=number] { font: inherit; width: 64px; padding: 4px 6px; border: 1px solid var(--accent-line); border-radius: 6px; text-align: center; }
+
+  footer { margin-top: 32px; font-size: .82rem; color: #7a7f8c; border-top: 1px solid #e2e2ea; padding-top: 12px; }
+  @media (max-width: 420px) {
+    .abil .m { font-size: 1.1rem; }
+    .turn .row { grid-template-columns: 78px 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">&larr; Übersicht</a>
+  <header>
+    <h1>Isidore Isidora, „The Cleaner“</h1>
+    <p class="sub">Variant Human &middot; Rogue 7 (Swashbuckler) &middot; Criminal &middot; D&amp;D 5e (2014) &middot; Prof.-Bonus <strong>+3</strong></p>
+  </header>
+
+  <nav class="jump">
+    <a href="#kampf">Kampf</a><a href="#runde">Runde</a><a href="#features">Features</a>
+    <a href="#skills">Skills</a><a href="#hp">TP</a><a href="#regeln">Regeln</a><a href="#ausruestung">Ausrüstung</a>
+  </nav>
+
+  <div class="stats" id="kampf">
+    <div class="stat"><div class="v">16</div><div class="l">RK / AC</div><div class="n">19 mit Parade</div></div>
+    <div class="stat"><div class="v">52</div><div class="l">TP max</div><div class="n">TW 7W8</div></div>
+    <div class="stat"><div class="v">+6</div><div class="l">Initiative</div><div class="n">DEX+CHA</div></div>
+    <div class="stat"><div class="v">30 ft</div><div class="l">Bewegung</div><div class="n">9 m</div></div>
+  </div>
+
+  <div class="abil">
+    <div><div class="l">STR</div><div class="m">−1</div><div class="s">8</div><div class="save">RW −1</div></div>
+    <div><div class="l">DEX</div><div class="m">+4</div><div class="s">18</div><div class="save">RW +7 ●</div></div>
+    <div><div class="l">CON</div><div class="m">+2</div><div class="s">14</div><div class="save">RW +2</div></div>
+    <div><div class="l">INT</div><div class="m">+0</div><div class="s">10</div><div class="save">RW +3 ●</div></div>
+    <div><div class="l">WIS</div><div class="m">+1</div><div class="s">12</div><div class="save">RW +1</div></div>
+    <div><div class="l">CHA</div><div class="m">+2</div><div class="s">14</div><div class="save">RW +2</div></div>
+  </div>
+
+  <h2>Angriffe <span class="tag">● = geübter Rettungswurf</span></h2>
+  <table>
+    <tr><th>Waffe</th><th>Treffer</th><th>Schaden</th><th>Notiz</th></tr>
+    <tr><td><strong>Rapier</strong> (Wischmopp-Klinge)</td><td class="num">+7</td><td class="num">1W8+4</td><td>Stich, Finesse</td></tr>
+    <tr><td><strong>Dolch</strong></td><td class="num">+7</td><td class="num">1W4+4</td><td>Stich, Wurf 20/60 ft, leicht</td></tr>
+    <tr><td><strong>Kurzbogen</strong> <span class="dim">(oder Handarmbrust, DM-Absprache)</span></td><td class="num">+7</td><td class="num">1W6+4</td><td>Stich, 80/320 ft (Handarmbrust 30/120)</td></tr>
+  </table>
+
+  <div class="box red" style="margin-top:10px">
+    <div class="t">Schleichangriff <span class="en">Sneak Attack</span> &mdash; <span style="color:var(--red)">+4W6</span></div>
+    <p><strong>1× pro Zug</strong> (nicht pro Runde!), nur mit Finesse- oder Fernkampfwaffe. Geht, wenn <strong>eins</strong> davon stimmt:</p>
+    <ul>
+      <li>Du hast <strong>Vorteil</strong> auf den Angriff, <em>oder</em></li>
+      <li>ein <strong>Verbündeter</strong> steht innerhalb 5 ft am Ziel (und ist nicht kampfunfähig), <em>oder</em></li>
+      <li><strong>Duell (Rakish Audacity):</strong> Ziel ist innerhalb 5 ft von dir, <strong>keine andere Kreatur</strong> innerhalb 5 ft von dir, und du hast keinen Nachteil.</li>
+    </ul>
+    <p class="dim">Tipp: „Pro Zug“ heißt, ein Gelegenheitsangriff im Zug eines Gegners darf <em>noch einmal</em> Sneak Attack auslösen – kostet aber deine Reaktion.</p>
+  </div>
+
+  <h2 id="runde">Deine Runde</h2>
+  <div class="turn">
+    <div class="row"><div class="k">Aktion</div><div>Angriff (Rapier/Dolch/Bogen) &middot; Dash &middot; Disengage &middot; Hide &middot; Help &middot; Dodge &middot; Gegenstand &middot; Suchen</div></div>
+    <div class="row"><div class="k">Bonus</div><div><strong>Cunning Action:</strong> Dash, Disengage <em>oder</em> Hide</div></div>
+    <div class="row"><div class="k">Bewegung</div><div>30 ft &middot; <strong>Fancy Footwork:</strong> wen du im Nahkampf angegriffen hast, darf dich diesen Zug nicht mit Gelegenheitsangriffen treffen → rein, stechen, weg</div></div>
+    <div class="row"><div class="k">Reaktion</div><div>Nur <strong>eine</strong> pro Runde – wähle: <strong>Defensive Duelist</strong> (+3 RK gegen einen Nahkampftreffer, wenn er dich gerade so trifft) &middot; <strong>Uncanny Dodge</strong> (halber Schaden von einem sichtbaren Angreifer) &middot; <strong>Gelegenheitsangriff</strong> (+ evtl. 2. Sneak Attack)</div></div>
+  </div>
+
+  <div class="box soft">
+    <div class="t">Standard-Duellzug</div>
+    <ul>
+      <li>Zum Ziel laufen (allein mit ihm innerhalb 5 ft → Sneak Attack frei).</li>
+      <li>Rapier: +7, 1W8+4 <strong>+4W6</strong>.</li>
+      <li>Fancy Footwork: ohne Gelegenheitsangriff weggehen – Restbewegung nutzen, um neben niemandem zu stehen.</li>
+      <li>Bonusaktion frei: Hide (wenn Deckung) für Vorteil nächste Runde, oder Dash/Disengage zur Sicherheit.</li>
+      <li>Reaktion aufsparen: Parade (fast getroffen) vs. Uncanny Dodge (hart getroffen).</li>
+    </ul>
+  </div>
+
+  <h2 id="features">Features</h2>
+
+  <div class="box gold">
+    <div class="t">Evasion <span class="new">NEU Lv 7</span> <span class="en">Ausweichen</span></div>
+    <p>Bei Effekten mit <strong>DEX-Rettungswurf für halben Schaden</strong> (Feuerball, Drachenatem, Fallen …): <strong>Erfolg = 0 Schaden</strong>, Misserfolg = halber Schaden. Dein DEX-RW ist +7.</p>
+  </div>
+
+  <div class="box">
+    <div class="t"><span class="when mv">Bewegung</span>Fancy Footwork <span class="en">Swashbuckler 3</span></div>
+    <p>Jede Kreatur, die du in deinem Zug im Nahkampf angreifst, kann dich für den Rest des Zuges nicht mit Gelegenheitsangriffen treffen. Treffen ist nicht nötig – der Angriff reicht.</p>
+  </div>
+
+  <div class="box">
+    <div class="t">Rakish Audacity <span class="en">Swashbuckler 3</span></div>
+    <p><strong>+2 (CHA) auf Initiative</strong> (schon eingerechnet). Sneak Attack im Eins-gegen-eins ohne Vorteil/Verbündeten – siehe oben.</p>
+  </div>
+
+  <div class="box">
+    <div class="t"><span class="when ba">Bonus</span>Cunning Action <span class="en">Rogue 2</span></div>
+    <p>Als Bonusaktion: <strong>Dash</strong> (doppelte Bewegung), <strong>Disengage</strong> (keine Gelegenheitsangriffe), <strong>Hide</strong> (Stealth +10 gegen passive Wahrnehmung).</p>
+  </div>
+
+  <div class="box">
+    <div class="t"><span class="when">Reaktion</span>Uncanny Dodge <span class="en">Rogue 5</span></div>
+    <p>Ein Angreifer, den du siehst, trifft dich: Schaden <strong>halbieren</strong>. Funktioniert auch gegen Fernkampf und gegen Crits.</p>
+  </div>
+
+  <div class="box">
+    <div class="t"><span class="when">Reaktion</span>Defensive Duelist <span class="en">Feat, Variant Human</span></div>
+    <p>Du führst eine Finesse-Waffe und ein <strong>Nahkampfangriff</strong> würde dich treffen: <strong>+3 RK</strong> gegen diesen einen Angriff (16 → 19). Verwandelt Treffer mit 16–18 in Fehlschläge.</p>
+  </div>
+
+  <div class="box">
+    <div class="t">Expertise <span class="en">Rogue 1 &amp; 6</span></div>
+    <p>Doppelter Prof.-Bonus auf <strong>Überzeugen, Nachforschen, Heimlichkeit, Wahrnehmung</strong>.</p>
+  </div>
+
+  <div class="box">
+    <div class="t">Thieves’ Cant <span class="en">Diebesjargon</span></div>
+    <p>Geheime Sprache/Zeichen der Unterwelt. Nachricht braucht 4× so lang wie normal.</p>
+  </div>
+
+  <div class="box">
+    <div class="t">Criminal Contact <span class="en">Hintergrund-Feature</span></div>
+    <p>Verlässlicher, diskreter Kontakt ins Netzwerk (Club des Goldenen Greifen). Nachrichten erreichen dich – und gehen von dir aus – ohne dass jemand offiziell je etwas von dir gehört hat.</p>
+  </div>
+
+  <div class="box">
+    <div class="t">Cleaner’s Kit <span class="en">Ribbon, mit DM</span></div>
+    <p>10 Minuten ungestörte Arbeit: Spuren eines Fehlers, Verbrechens oder Vorfalls verschwinden.</p>
+  </div>
+
+  <h2 id="skills">Fertigkeiten <span class="tag">E = Expertise</span></h2>
+  <table>
+    <tr><th>Fertigkeit</th><th>Bonus</th><th>Fertigkeit</th><th>Bonus</th></tr>
+    <tr><td>Heimlichkeit <span class="e">E</span></td><td class="num">+10</td><td>Täuschen</td><td class="num">+5</td></tr>
+    <tr><td>Überzeugen <span class="e">E</span></td><td class="num">+8</td><td>Motiv erkennen</td><td class="num">+4</td></tr>
+    <tr><td>Wahrnehmung <span class="e">E</span></td><td class="num">+7</td><td>Fingerfertigkeit</td><td class="num">+4</td></tr>
+    <tr><td>Akrobatik</td><td class="num">+7</td><td>Einschüchtern / Auftreten</td><td class="num">+2</td></tr>
+    <tr><td>Nachforschen <span class="e">E</span></td><td class="num">+6</td><td>Tiere / Heilkunde / Überleben</td><td class="num">+1</td></tr>
+    <tr><td>Arkana / Geschichte / Natur / Religion</td><td class="num">+0</td><td>Athletik</td><td class="num">−1</td></tr>
+  </table>
+  <p style="font-size:.9rem;color:var(--muted);margin:8px 0 0">
+    <strong>Passiv:</strong> Wahrnehmung 17 &middot; Nachforschen 16 &middot; Motiv erkennen 14<br>
+    <strong>Werkzeuge:</strong> Diebeswerkzeug +7 &middot; Spielkarten +3 &middot; <strong>Sprachen:</strong> Gemeinsprache + 1 &middot; Diebesjargon
+  </p>
+
+  <h2 id="hp">Trefferpunkte <span class="tag">wird im Browser gespeichert</span></h2>
+  <div class="tracker">
+    <div class="hp">
+      <button type="button" data-hp="-5">−5</button>
+      <button type="button" data-hp="-1">−1</button>
+      <div class="cur" id="hpCur">52</div>
+      <div class="max">/ 52</div>
+      <button type="button" data-hp="1">+1</button>
+      <button type="button" data-hp="5">+5</button>
+    </div>
+    <div class="btns">
+      <button type="button" data-hp="-10">−10</button>
+      <button type="button" data-hp="10">+10</button>
+      <button type="button" id="hpFull" class="reset">Volle TP</button>
+    </div>
+    <div class="line">
+      <span>Temp. TP: <input type="number" id="hpTemp" min="0" value="0" inputmode="numeric"></span>
+      <span>Todesrettung ✔ <input type="checkbox" class="ds" data-ds="s0"><input type="checkbox" class="ds" data-ds="s1"><input type="checkbox" class="ds" data-ds="s2">
+        &nbsp;✘ <input type="checkbox" class="ds" data-ds="f0"><input type="checkbox" class="ds" data-ds="f1"><input type="checkbox" class="ds" data-ds="f2"></span>
+    </div>
+    <div class="line">
+      <span><strong>Trefferwürfel</strong> (W8+2) benutzt:</span>
+      <span class="hd">
+        <input type="checkbox" class="hdc" data-hd="0"><input type="checkbox" class="hdc" data-hd="1">
+        <input type="checkbox" class="hdc" data-hd="2"><input type="checkbox" class="hdc" data-hd="3">
+        <input type="checkbox" class="hdc" data-hd="4"><input type="checkbox" class="hdc" data-hd="5">
+        <input type="checkbox" class="hdc" data-hd="6">
+      </span>
+      <button type="button" id="restLong" class="reset">Lange Rast</button>
+    </div>
+    <div class="sm">Lange Rast: volle TP, Todesrettungen weg, 4 von 7 Trefferwürfeln kommen zurück.</div>
+  </div>
+
+  <h2 id="regeln">Regeln, die du ständig brauchst</h2>
+
+  <details open>
+    <summary>Vorteil für Sneak Attack herstellen</summary>
+    <ul>
+      <li><strong>Versteckt angreifen</strong> (Hide als Bonusaktion → Vorteil; danach bist du entdeckt).</li>
+      <li>Ziel ist <strong>liegend</strong> (Nahkampf innerhalb 5 ft), <strong>gefesselt</strong>, <strong>blind</strong>, <strong>betäubt</strong>, <strong>gelähmt</strong> oder <strong>bewusstlos</strong>.</li>
+      <li>Ziel <strong>sieht dich nicht</strong> (Dunkelheit, Unsichtbarkeit, Nebel).</li>
+      <li>Verbündeter nutzt <strong>Help</strong> (Aktion) auf das Ziel.</li>
+      <li>Nachteil hebt Vorteil auf → dann kein Sneak Attack über diese Schiene; Rakish Audacity gilt bei Nachteil ebenfalls nicht.</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>Verstecken (Hide)</summary>
+    <ul>
+      <li>Du brauchst <strong>unterbrochene Sichtlinie</strong> (Deckung, Dunkelheit, Nebel). Hinter einem Verbündeten reicht meist nicht – DM-Entscheid.</li>
+      <li>Wurf: <strong>Stealth +10</strong> gegen passive Wahrnehmung der Gegner (oder aktive Suche).</li>
+      <li>Angreifen aus dem Versteck: <strong>Vorteil</strong>, danach bist du sichtbar.</li>
+      <li>Laut werden oder sichtbar hervortreten beendet das Verstecken.</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>Gelegenheitsangriffe</summary>
+    <ul>
+      <li>Ausgelöst, wenn ein Feind <strong>deine Reichweite verlässt</strong> ohne Disengage – nicht beim bloßen Bewegen innerhalb deiner Reichweite.</li>
+      <li>Du bist geschützt durch <strong>Fancy Footwork</strong> (Ziel, das du angegriffen hast) oder <strong>Disengage</strong> (alle).</li>
+      <li>Dein Gelegenheitsangriff: Rapier +7, 1W8+4 – mit Sneak Attack, wenn Bedingung erfüllt (z. B. Verbündeter neben dem Flüchtenden).</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>Zustände kurz</summary>
+    <ul>
+      <li><strong>Liegend (prone):</strong> Aufstehen kostet halbe Bewegung. Nahkampf gegen Liegende: Vorteil. Fernkampf gegen Liegende: Nachteil.</li>
+      <li><strong>Gepackt (grappled):</strong> Bewegung 0. Entkommen: Aktion, Akrobatik +7 gegen Athletik/Akrobatik des Packenden.</li>
+      <li><strong>Verängstigt:</strong> Nachteil auf Angriffe/Checks, solange Quelle sichtbar; nicht näher heran.</li>
+      <li><strong>Vergiftet:</strong> Nachteil auf Angriffe und Attributswürfe.</li>
+      <li><strong>Blind:</strong> Angriffe gegen dich Vorteil, deine Angriffe Nachteil. <strong>Unsichtbar:</strong> umgekehrt.</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>Rast &amp; Sterben</summary>
+    <ul>
+      <li><strong>Kurze Rast</strong> (1 h): Trefferwürfel ausgeben, je <strong>1W8+2</strong>.</li>
+      <li><strong>Lange Rast</strong> (8 h): volle TP, 4 Trefferwürfel zurück.</li>
+      <li><strong>0 TP:</strong> bewusstlos, Todesrettungswürfe (W20: 10+ Erfolg, 1 = 2 Misserfolge, 20 = 1 TP). 3 Erfolge stabil, 3 Misserfolge tot.</li>
+      <li><strong>Schaden bei 0 TP</strong> = 1 Misserfolg (Crit = 2). Schaden ≥ 52 auf einmal = sofort tot.</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>Nützliche Aktionen für eine Rogue</summary>
+    <ul>
+      <li><strong>Diebeswerkzeug +7:</strong> Schloss öffnen / Falle entschärfen (Aktion, oft mehrere Runden).</li>
+      <li><strong>Dodge:</strong> Angriffe gegen dich mit Nachteil, DEX-RW mit Vorteil – wenn du nichts Besseres hast.</li>
+      <li><strong>Ready:</strong> Aktion vorbereiten („wenn er um die Ecke kommt, steche ich“) – Auslösung kostet die Reaktion.</li>
+      <li><strong>Dolch werfen</strong> ist ein Fernkampfangriff → Sneak Attack möglich, aber Nachteil wenn ein Feind innerhalb 5 ft von dir steht.</li>
+      <li><strong>Zweite Waffe:</strong> Rapier ist nicht „leicht“ → kein Zwei-Waffen-Kampf mit dem Dolch als Bonusaktion.</li>
+    </ul>
+  </details>
+
+  <h2 id="ausruestung">Ausrüstung</h2>
+  <details>
+    <summary>Waffen, Rüstung &amp; Werkzeug</summary>
+    <ul>
+      <li>Rapier (Wischmopp-Klinge) &middot; 2 Dolche &middot; Kurzbogen in Öltuch + 20 Pfeile</li>
+      <li>Beschlagene Lederrüstung = metallbeschlagener Pelzmantel (RK 16; mit DM so abgesegnet, sonst Leder RK 15)</li>
+      <li>Diebeswerkzeug &middot; Spielkarten &middot; Verkleidungsset (Flavor, Proficiency mit DM)</li>
+    </ul>
+  </details>
+  <details>
+    <summary>Cleaner’s Kit (Einbrecherpaket im eleganten Lederkoffer)</summary>
+    <ul>
+      <li>1.000 Metallkugeln &middot; 10 ft Schnur &middot; Glocke &middot; 5 Kerzen &middot; Brechstange (×2) &middot; Hammer &middot; 10 Pitons</li>
+      <li>Blendlaterne &middot; 2 Flaschen Öl &middot; 5 Tagesrationen &middot; Zunderbüchse &middot; Wasserschlauch &middot; 50 ft Hanfseil</li>
+      <li>Dunkle Kleidung mit Kapuze &middot; Gürtelbeutel &middot; mehrere Sätze feine Kleidung &middot; Pelze &amp; Schmuck (Andenken)</li>
+      <li>Die Steinplatte von Thollok. Fragt niemand nach.</li>
+    </ul>
+  </details>
+
+  <h2>Persönlichkeit &amp; Spielhilfe</h2>
+  <div class="box">
+    <ul>
+      <li><strong>Wesenszug:</strong> Distanziert, makellos würdevoll, antwortet mit Gegenfragen und einem Schmunzeln. Lob für den Pelz wärmt sie um ein Grad; Anmache geht ins Leere.</li>
+      <li><strong>Ideal:</strong> Berufsstolz – sauber, diskret, vollständig, oder gar nicht.</li>
+      <li><strong>Bindung:</strong> Jeder Pelz, jedes Schmuckstück ist ein Andenken von jemandem, den sie gerettet hat. Sie kennt jeden Namen.</li>
+      <li><strong>Makel:</strong> Lieber herzlos wirken als beim Mitfühlen erwischt werden.</li>
+      <li><strong>Nie aussprechen:</strong> Arvane, Baldur’s Gate, der Bruder, der Giftbeweis.</li>
+    </ul>
+  </div>
+
+  <h2>Nächste Stufen</h2>
+  <div class="box">
+    <ul>
+      <li><strong>Lv 8:</strong> ASI/Feat – +2 CHA, Alert, oder Battle-Master-Fighter-Dip (Riposte).</li>
+      <li><strong>Lv 9:</strong> <strong>Panache</strong> – Überzeugen gegen Motiv erkennen: Feind hat Nachteil gegen alle außer dir und kann keine Gelegenheitsangriffe auf andere machen; Zivilist ist bezaubert. Das Herzstück des Konzepts.</li>
+      <li><strong>Lv 9:</strong> Sneak Attack 5W6 &middot; Prof.-Bonus +4.</li>
+    </ul>
+  </div>
+
+  <footer>
+    Quelle: Build aus dem Repo dnd-characters (Lv 6, auf Lv 7 hochgezogen: Evasion, Sneak Attack 4W6, +7 TP). Regeln: PHB 2014 &amp; Xanathar’s Guide. Stand Oktober 2026.
+  </footer>
+</div>
+
+<script>
+(function () {
+  var KEY = 'isidora-sheet-v1';
+  var MAX = 52;
+  var state = { hp: MAX, temp: 0, hd: [], ds: [] };
+  try { var s = JSON.parse(localStorage.getItem(KEY)); if (s && typeof s.hp === 'number') state = s; } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function all(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+  function render() {
+    var cur = document.getElementById('hpCur');
+    cur.textContent = state.hp;
+    cur.style.color = state.hp <= 0 ? '#b0392b' : (state.hp <= MAX / 4 ? '#c7781c' : '');
+    document.getElementById('hpTemp').value = state.temp || 0;
+    all('.hdc').forEach(function (c) { c.checked = (state.hd || []).indexOf(c.dataset.hd) >= 0; });
+    all('.ds').forEach(function (c) { c.checked = (state.ds || []).indexOf(c.dataset.ds) >= 0; });
+  }
+  all('[data-hp]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var d = parseInt(b.dataset.hp, 10);
+      if (d < 0 && state.temp > 0) { var t = Math.min(state.temp, -d); state.temp -= t; d += t; }
+      state.hp = Math.max(0, Math.min(MAX, state.hp + d));
+      save(); render();
+    });
+  });
+  document.getElementById('hpFull').addEventListener('click', function () { state.hp = MAX; save(); render(); });
+  document.getElementById('hpTemp').addEventListener('change', function (e) { state.temp = Math.max(0, parseInt(e.target.value, 10) || 0); save(); });
+  all('.hdc').forEach(function (c) {
+    c.addEventListener('change', function () { state.hd = all('.hdc:checked').map(function (x) { return x.dataset.hd; }); save(); });
+  });
+  all('.ds').forEach(function (c) {
+    c.addEventListener('change', function () { state.ds = all('.ds:checked').map(function (x) { return x.dataset.ds; }); save(); });
+  });
+  document.getElementById('restLong').addEventListener('click', function () {
+    state.hp = MAX; state.temp = 0; state.ds = [];
+    state.hd = (state.hd || []).slice(4);
+    save(); render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>
